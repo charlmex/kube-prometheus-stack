@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts  # Helm repo URL
+    targetRevision: 51.2.1  # Version of the chart you want to deploy
+    chart: kube-prometheus-stack  # Name of the chart
+    helm:
+      parameters:
+        - name: prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues
+          value: "false"
+        - name: grafana.adminPassword
+          value: "admin"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring  # Namespace where you want to deploy the stack
+
+  # syncPolicy:  # Removed for manual sync
