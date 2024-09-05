@@ -1,0 +1,39 @@
+prometheus:
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "longhorn"  # Use longhorn storage class
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 100Gi  # Request 100Gi for persistent storage
+            limits:
+              storage: 150Gi  # Set a hard limit of 150Gi for storage
+
+    # Retention Settings
+    retention: 10d  # Keep metrics data for 10 days
+    retentionSize: 50Gi  # Set the maximum disk space for Prometheus data to 50GiB
+
+    # Resource Requests and Limits for Prometheus
+    resources:
+      requests:
+        memory: 4Gi
+        cpu: 500m
+      limits:
+        memory: 8Gi
+        cpu: 1000m
+
+  # Thanos sidecar to offload data to object storage (optional)
+  thanos:
+    baseImage: "quay.io/thanos/thanos"
+    version: "v0.24.0"
+    objectStorageConfig:
+      name: thanos-objstore-config
+      key: thanos.yaml
+
+  alerting:
+    alertmanagers:
+      - namespace: monitoring
+        name: alertmanager-main
+        port: web
